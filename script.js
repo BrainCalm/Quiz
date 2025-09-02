@@ -153,7 +153,7 @@ function finishSpin(finalRotation) {
     const winningIndex = Math.floor(sectorAngleUnderPointer / anglePerOption) % options.length;
     
     const resultElement = document.getElementById('result');
-    resultElement.textContent = `🎉 Выпало: ${options[winningIndex]}`;
+    resultElement.textContent = `🎉 Делать будет: ${options[winningIndex]}`;
     resultElement.style.color = '#ff4757';
     
     // Анимация результата
