@@ -125,7 +125,7 @@ function finishSpin(finalRotation) {
     const winningIndex = Math.floor((2 * Math.PI - normalizedRotation) / anglePerOption) % options.length;
     
     const resultElement = document.getElementById('result');
-    resultElement.textContent = `Результат: ${options[winningIndex]}`;
+    resultElement.textContent = `Делать будет: ${options[winningIndex]}`;
     resultElement.style.color = '#ff4757';
     
     // Анимация результата

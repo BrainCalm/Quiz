@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Волчок для викторины</title>
+    <title>Распределитель задач</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
@@ -11,12 +11,12 @@
     <div class="container">
         <!-- Этап 1: Ввод вариантов -->
         <div id="setup-screen">
-            <h2>Добавьте варианты для викторины</h2>
+            <h2>Добавим исполнителей</h2>
             <div id="inputs-container">
-                <input type="text" class="option-input" placeholder="Вариант 1">
+                <input type="text" class="option-input" placeholder="Жертва 1">
             </div>
-            <button onclick="addInput()">+ Добавить вариант</button>
-            <button onclick="startGame()">Начать игру</button>
+            <button onclick="addInput()">+ Добавить исполнителя</button>
+            <button onclick="startGame()">Начать распределение</button>
         </div>
 
         <!-- Этап 2: Игровой экран -->
