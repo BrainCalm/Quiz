@@ -48,32 +48,34 @@ button:hover {
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 30px;
+}
+
+.pointer {
+    position: absolute;
+    top: -15px; /* Подвинули выше */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 40px;
+    background: #ff4757;
+    border-radius: 5px 5px 0 0;
+    z-index: 11;
+}
+
 .wheel-center {
     position: absolute;
-    top: 140px;
-    left: 140px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 20px;
     height: 20px;
     background: #fff;
     border: 3px solid #007bff;
     border-radius: 50%;
     z-index: 10;
-}
-
-.pointer {
-    position: absolute;
-    top: -20px;
-    left: 145px;
-    width: 10px;
-    height: 40px;
-    background: #ff4757;
-    border-radius: 5px;
-    z-index: 11;
-}
-
-#result {
-    margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
-    min-height: 30px;
 }

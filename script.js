@@ -1,4 +1,4 @@
-// script.js - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// script.js - ИСПРАВЛЕННАЯ ВЕРСИЯ ДЛЯ ВЕРХНЕГО УКАЗАТЕЛЯ
 let options = [];
 let isSpinning = false;
 let wheelCanvas;
@@ -66,11 +66,14 @@ function drawWheel(rotation = 0) {
         wheelCtx.closePath();
         wheelCtx.fillStyle = colors[index % colors.length];
         wheelCtx.fill();
+        wheelCtx.strokeStyle = '#fff';
+        wheelCtx.lineWidth = 2;
         wheelCtx.stroke();
         
-        // Добавляем текст
+        // Добавляем текст (повернутый правильно)
         wheelCtx.save();
-        wheelCtx.rotate(startAngle + anglePerOption / 2);
+        const textAngle = startAngle + anglePerOption / 2;
+        wheelCtx.rotate(textAngle);
         wheelCtx.textAlign = 'right';
         wheelCtx.fillStyle = 'white';
         wheelCtx.font = 'bold 12px Arial';
@@ -98,7 +101,7 @@ function spinWheel() {
     document.getElementById('result').textContent = '';
     
     const spinDuration = 3000 + Math.random() * 2000;
-    const extraRotations = 5 + Math.random() * 3; // 5-8 дополнительных оборотов
+    const extraRotations = 5 + Math.random() * 3;
     const targetRotation = currentRotation + (extraRotations * 2 * Math.PI);
     const startTime = Date.now();
     const startRotation = currentRotation;
@@ -108,7 +111,6 @@ function spinWheel() {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / spinDuration, 1);
         
-        // Easing function для smooth-анимации
         const easeOut = 1 - Math.pow(1 - progress, 3);
         const currentRotationValue = startRotation + ((targetRotation - startRotation) * easeOut);
         
@@ -128,21 +130,27 @@ function finishSpin(finalRotation) {
     isSpinning = false;
     document.getElementById('spin-btn').disabled = false;
     
-    // ПРАВИЛЬНЫЙ расчет выигрышного сектора
     const anglePerOption = (2 * Math.PI) / options.length;
     
-    // Нормализуем угол (приводим к диапазону 0 - 2π)
-    let normalizedAngle = finalRotation % (2 * Math.PI);
-    if (normalizedAngle < 0) {
-        normalizedAngle += 2 * Math.PI;
+    // ПРАВИЛЬНЫЙ РАСЧЕТ ДЛЯ ВЕРХНЕГО УКАЗАТЕЛЯ
+    // Нормализуем угол вращения
+    let normalizedRotation = finalRotation % (2 * Math.PI);
+    if (normalizedRotation < 0) {
+        normalizedRotation += 2 * Math.PI;
     }
     
-    // Учитываем, что указатель находится вверху (угол 0)
-    // Вычитаем π/2 потому что 0 радиан = справа, а нам нужно чтобы 0 был вверху
-    let pointerAngle = (2 * Math.PI - normalizedAngle + Math.PI/2) % (2 * Math.PI);
+    // Указатель находится вверху (угол -π/2 в системе координат canvas)
+    // Но поскольку мы вращаем все колесо, нам нужно найти какой сектор сейчас под указателем
+    const pointerAngle = -Math.PI / 2; // Указатель смотрит вверх (-90 градусов)
+    
+    // Вычисляем угол сектора под указателем
+    let sectorAngleUnderPointer = (pointerAngle - normalizedRotation) % (2 * Math.PI);
+    if (sectorAngleUnderPointer < 0) {
+        sectorAngleUnderPointer += 2 * Math.PI;
+    }
     
     // Определяем индекс выигрышного сектора
-    const winningIndex = Math.floor(pointerAngle / anglePerOption) % options.length;
+    const winningIndex = Math.floor(sectorAngleUnderPointer / anglePerOption) % options.length;
     
     const resultElement = document.getElementById('result');
     resultElement.textContent = `🎉 Выпало: ${options[winningIndex]}`;
@@ -163,7 +171,6 @@ function finishSpin(finalRotation) {
 }
 
 function highlightWinningSector(index) {
-    // Временно изменяем цвет выигрышного сектора
     const centerX = wheelCanvas.width / 2;
     const centerY = wheelCanvas.height / 2;
     const radius = centerX - 10;
@@ -181,13 +188,20 @@ function highlightWinningSector(index) {
     wheelCtx.moveTo(0, 0);
     wheelCtx.arc(0, 0, radius, startAngle, endAngle);
     wheelCtx.closePath();
-    wheelCtx.fillStyle = 'rgba(255, 215, 0, 0.3)'; // Золотая подсветка
+    wheelCtx.fillStyle = 'rgba(255, 215, 0, 0.4)';
     wheelCtx.fill();
     
     wheelCtx.restore();
     
-    // Через 2 секунды убираем подсветку
     setTimeout(() => {
         drawWheel(currentRotation);
     }, 2000);
+}
+
+// Дебаг функция для проверки (можно удалить после тестов)
+function debugSector() {
+    const anglePerOption = (2 * Math.PI) / options.length;
+    console.log('Текущее вращение:', currentRotation);
+    console.log('Угол на сектор:', anglePerOption);
+    console.log('Варианты:', options);
 }
