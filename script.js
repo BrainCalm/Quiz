@@ -26,6 +26,14 @@ function checkInlineMode() {
 
 function processInlineQuery(query) {
     try {
+    	// Быстрая загрузка для inline-режима
+if (window.location.search.includes('inline=')) {
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        checkInlineMode();
+        document.body.style.opacity = '1';
+    }, 100);
+}
         // Парсим запрос вида "option1; option2; option3"
         options = query.split(';')
             .map(opt => opt.trim())
