@@ -76,7 +76,7 @@ function generateInlineQuery() {
         return;
     }
 
-    const botUsername = 'YourBot'; // ЗАМЕНИТЕ на username вашего бота!
+    const botUsername = 'TestJust4funBot'; // ЗАМЕНИТЕ на username вашего бота!
     const query = options.join('; ');
     const inlineCommand = `@${botUsername} ${query}`;
     
