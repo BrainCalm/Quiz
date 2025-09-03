@@ -8,10 +8,75 @@ let currentRotation = 0;
 document.addEventListener('DOMContentLoaded', function() {
     wheelCanvas = document.getElementById('wheel');
     wheelCtx = wheelCanvas.getContext('2d');
-    if (typeof Telegram !== 'undefined') {
-        Telegram.WebApp.ready();
+    
+    // Проверяем, открыто ли как Web App или inline
+    if (typeof Telegram !== 'undefined' && Telegram.WebApp.initData) {
+        const initData = Telegram.WebApp.initData;
+        if (initData.includes('query_id')) {
+            // Это inline-запрос
+            document.getElementById('inline-mode').style.display = 'block';
+            document.getElementById('setup-screen').style.display = 'none';
+            processInlineQuery();
+        }
     }
 });
+
+function processInlineQuery() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    
+    if (query) {
+        options = query.split(';').map(opt => opt.trim()).filter(opt => opt);
+        if (options.length >= 2) {
+            document.getElementById('game-screen').style.display = 'block';
+            drawWheel();
+        }
+    }
+}
+
+function generateInlineQuery() {
+    const inputs = document.querySelectorAll('.option-input');
+    options = Array.from(inputs)
+        .map(input => input.value.trim())
+        .filter(value => value !== '');
+
+    if (options.length < 2) {
+        alert('Добавьте хотя бы 2 варианта!');
+        return;
+    }
+
+    const query = options.join('; ');
+    const botUsername = 'ВашБот'; // Замените на username вашего бота
+    const inlineQuery = `@${botUsername} ${query}`;
+    
+    document.getElementById('query-text').textContent = inlineQuery;
+    document.getElementById('inline-query-result').style.display = 'block';
+}
+
+function copyToClipboard() {
+    const text = document.getElementById('query-text').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('Команда скопирована! Вставьте в любой чат Telegram');
+    });
+}
+
+function shareToChat() {
+    if (options.length < 2) return;
+    
+    const query = options.join('; ');
+    const botUsername = 'ВашБот'; // Замените на username вашего бота
+    const shareText = `🎯 Сыграем в викторину? @${botUsername} ${query}`;
+    
+    if (typeof Telegram !== 'undefined') {
+        Telegram.WebApp.sendData(shareText);
+    } else {
+        // Для браузерной версии
+        alert(`Отправьте в чат: @${botUsername} ${query}`);
+    }
+}
+
+// Остальные функции (addInput, drawWheel, spinWheel, finishSpin) 
+// остаются такими же как в предыдущей версии
 
 function addInput() {
     const container = document.getElementById('inputs-container');

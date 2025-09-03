@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Распределитель задач</title>
+    <title>Волчок для распределения задачи</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
@@ -9,25 +9,40 @@
 </head>
 <body>
     <div class="container">
-        <!-- Этап 1: Ввод вариантов -->
-        <div id="setup-screen">
-            <h2>Добавим исполнителей</h2>
-            <div id="inputs-container">
-                <input type="text" class="option-input" placeholder="Жертва 1">
+        <div id="inline-mode" style="display: none;">
+            <h3>🎯 Распределятор готов к использованию в чате!</h3>
+            <p>Напишите в любом чате: <code>@TestJust4funBot жертва1; жертва2; жертва3</code></p>
+            <div class="example">
+                <strong>Пример:</strong><br>
+                <code>@TestJust4funBot Чехлов; Деньшиков; Каленов; Рылкин</code>
             </div>
-            <button onclick="addInput()">+ Добавить исполнителя</button>
-            <button onclick="startGame()">Начать распределение</button>
         </div>
 
-        <!-- Этап 2: Игровой экран -->
+        <div id="setup-screen">
+            <h2>Создайте интеллектуальный распределятор</h2>
+            <div id="inputs-container">
+                <input type="text" class="option-input" placeholder="Вариант 1">
+                <input type="text" class="option-input" placeholder="Вариант 2">
+            </div>
+            <button onclick="addInput()">+ Добавить вариант</button>
+            <button onclick="generateInlineQuery()">Сгенерировать распределятор для чата</button>
+        </div>
+
         <div id="game-screen" style="display: none;">
             <div class="wheel-container">
-                <canvas id="wheel" width="300" height="300"></canvas>
+                <canvas id="wheel" width="250" height="250"></canvas>
                 <div class="wheel-center"></div>
                 <div class="pointer"></div>
             </div>
-            <button id="spin-btn" onclick="spinWheel()">Пуск!</button>
+            <button id="spin-btn" onclick="spinWheel()">Крутить!</button>
             <div id="result"></div>
+            <button onclick="shareToChat()" style="background-color: #25D366;">📤 Отправить в чат</button>
+        </div>
+
+        <div id="inline-query-result" style="display: none; margin-top: 20px; padding: 10px; background: #f0f8ff; border-radius: 10px;">
+            <h4>Команда для чата:</h4>
+            <code id="query-text" style="word-break: break-all;"></code>
+            <button onclick="copyToClipboard()" style="margin-top: 10px;">📋 Копировать</button>
         </div>
     </div>
     <script src="script.js"></script>
