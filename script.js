@@ -1,37 +1,68 @@
-// script.js - ИСПРАВЛЕННАЯ ВЕРСИЯ ДЛЯ ВЕРХНЕГО УКАЗАТЕЛЯ
 let options = [];
 let isSpinning = false;
 let wheelCanvas;
 let wheelCtx;
 let currentRotation = 0;
+let isInlineMode = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     wheelCanvas = document.getElementById('wheel');
     wheelCtx = wheelCanvas.getContext('2d');
     
-    // Проверяем, открыто ли как Web App или inline
-    if (typeof Telegram !== 'undefined' && Telegram.WebApp.initData) {
-        const initData = Telegram.WebApp.initData;
-        if (initData.includes('query_id')) {
-            // Это inline-запрос
-            document.getElementById('inline-mode').style.display = 'block';
-            document.getElementById('setup-screen').style.display = 'none';
-            processInlineQuery();
-        }
-    }
+    // Проверяем, открыто ли как inline-query
+    checkInlineMode();
 });
 
-function processInlineQuery() {
+function checkInlineMode() {
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
     
     if (query) {
-        options = query.split(';').map(opt => opt.trim()).filter(opt => opt);
-        if (options.length >= 2) {
-            document.getElementById('game-screen').style.display = 'block';
-            drawWheel();
-        }
+        // Это inline-запрос
+        isInlineMode = true;
+        processInlineQuery(query);
     }
+}
+
+function processInlineQuery(query) {
+    try {
+        // Парсим запрос вида "option1; option2; option3"
+        options = query.split(';')
+            .map(opt => opt.trim())
+            .filter(opt => opt.length > 0);
+        
+        if (options.length >= 2) {
+            showInlineScreen();
+        } else {
+            showError("Добавьте хотя бы 2 варианта через точку с запятой");
+        }
+    } catch (e) {
+        showError("Ошибка формата запроса. Используйте: вариант1; вариант2; вариант3");
+    }
+}
+
+function showInlineScreen() {
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('inline-result').style.display = 'none';
+    document.getElementById('inline-screen').style.display = 'block';
+    drawWheel();
+}
+
+function showError(message) {
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('inline-screen').style.display = 'none';
+    document.getElementById('inline-result').style.display = 'block';
+    document.getElementById('inline-query').textContent = message;
+}
+
+function addInput() {
+    const container = document.getElementById('inputs-container');
+    const inputCount = container.children.length;
+    const newInput = document.createElement('input');
+    newInput.type = 'text';
+    newInput.className = 'option-input';
+    newInput.placeholder = `Вариант ${inputCount + 1}`;
+    container.appendChild(newInput);
 }
 
 function generateInlineQuery() {
@@ -45,70 +76,36 @@ function generateInlineQuery() {
         return;
     }
 
+    const botUsername = 'YourBot'; // ЗАМЕНИТЕ на username вашего бота!
     const query = options.join('; ');
-    const botUsername = 'ВашБот'; // Замените на username вашего бота
-    const inlineQuery = `@${botUsername} ${query}`;
+    const inlineCommand = `@${botUsername} ${query}`;
     
-    document.getElementById('query-text').textContent = inlineQuery;
-    document.getElementById('inline-query-result').style.display = 'block';
+    document.getElementById('inline-query').textContent = inlineCommand;
+    document.getElementById('inline-result').style.display = 'block';
+    document.getElementById('setup-screen').style.display = 'none';
 }
 
-function copyToClipboard() {
-    const text = document.getElementById('query-text').textContent;
-    navigator.clipboard.writeText(text).then(() => {
-        alert('Команда скопирована! Вставьте в любой чат Telegram');
+function copyInlineCommand() {
+    const command = document.getElementById('inline-query').textContent;
+    navigator.clipboard.writeText(command).then(() => {
+        alert('Команда скопирована! Вставьте её в чат Telegram');
+    }).catch(err => {
+        // Fallback для старых браузеров
+        const tempInput = document.createElement('input');
+        tempInput.value = command;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Команда скопирована!');
     });
 }
 
-function shareToChat() {
-    if (options.length < 2) return;
-    
-    const query = options.join('; ');
-    const botUsername = 'ВашБот'; // Замените на username вашего бота
-    const shareText = `🎯 Сыграем в викторину? @${botUsername} ${query}`;
-    
-    if (typeof Telegram !== 'undefined') {
-        Telegram.WebApp.sendData(shareText);
-    } else {
-        // Для браузерной версии
-        alert(`Отправьте в чат: @${botUsername} ${query}`);
-    }
-}
-
-// Остальные функции (addInput, drawWheel, spinWheel, finishSpin) 
-// остаются такими же как в предыдущей версии
-
-function addInput() {
-    const container = document.getElementById('inputs-container');
-    const inputCount = container.children.length;
-    const newInput = document.createElement('input');
-    newInput.type = 'text';
-    newInput.className = 'option-input';
-    newInput.placeholder = `Вариант ${inputCount + 1}`;
-    container.appendChild(newInput);
-}
-
-function startGame() {
-    const inputs = document.querySelectorAll('.option-input');
-    options = Array.from(inputs)
-        .map(input => input.value.trim())
-        .filter(value => value !== '');
-
-    if (options.length < 2) {
-        alert('Добавьте хотя бы 2 варианта!');
-        return;
-    }
-
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('game-screen').style.display = 'block';
-    
-    drawWheel();
-}
-
+// Функции для работы колеса
 function drawWheel(rotation = 0) {
     const centerX = wheelCanvas.width / 2;
     const centerY = wheelCanvas.height / 2;
-    const radius = centerX - 10;
+    const radius = centerX - 8;
     
     wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
     
@@ -132,27 +129,30 @@ function drawWheel(rotation = 0) {
         wheelCtx.fillStyle = colors[index % colors.length];
         wheelCtx.fill();
         wheelCtx.strokeStyle = '#fff';
-        wheelCtx.lineWidth = 2;
+        wheelCtx.lineWidth = 1;
         wheelCtx.stroke();
         
-        // Добавляем текст (повернутый правильно)
+        // Добавляем текст
         wheelCtx.save();
         const textAngle = startAngle + anglePerOption / 2;
         wheelCtx.rotate(textAngle);
         wheelCtx.textAlign = 'right';
         wheelCtx.fillStyle = 'white';
-        wheelCtx.font = 'bold 12px Arial';
-        wheelCtx.fillText(option, radius - 15, 5);
+        wheelCtx.font = 'bold 10px Arial';
+        
+        // Обрезаем длинный текст для inline-режима
+        const displayText = option.length > 12 ? option.substring(0, 10) + '...' : option;
+        wheelCtx.fillText(displayText, radius - 12, 4);
         wheelCtx.restore();
     });
     
-    // Рисуем центр колеса
+    // Центр колеса
     wheelCtx.beginPath();
-    wheelCtx.arc(0, 0, 10, 0, 2 * Math.PI);
+    wheelCtx.arc(0, 0, 8, 0, 2 * Math.PI);
     wheelCtx.fillStyle = '#fff';
     wheelCtx.fill();
     wheelCtx.strokeStyle = '#007bff';
-    wheelCtx.lineWidth = 3;
+    wheelCtx.lineWidth = 2;
     wheelCtx.stroke();
     
     wheelCtx.restore();
@@ -165,8 +165,8 @@ function spinWheel() {
     document.getElementById('spin-btn').disabled = true;
     document.getElementById('result').textContent = '';
     
-    const spinDuration = 3000 + Math.random() * 2000;
-    const extraRotations = 5 + Math.random() * 3;
+    const spinDuration = 2000 + Math.random() * 1000; // Быстрее для inline
+    const extraRotations = 3 + Math.random() * 2; // Меньше оборотов
     const targetRotation = currentRotation + (extraRotations * 2 * Math.PI);
     const startTime = Date.now();
     const startRotation = currentRotation;
@@ -197,76 +197,26 @@ function finishSpin(finalRotation) {
     
     const anglePerOption = (2 * Math.PI) / options.length;
     
-    // ПРАВИЛЬНЫЙ РАСЧЕТ ДЛЯ ВЕРХНЕГО УКАЗАТЕЛЯ
-    // Нормализуем угол вращения
     let normalizedRotation = finalRotation % (2 * Math.PI);
-    if (normalizedRotation < 0) {
-        normalizedRotation += 2 * Math.PI;
-    }
+    if (normalizedRotation < 0) normalizedRotation += 2 * Math.PI;
     
-    // Указатель находится вверху (угол -π/2 в системе координат canvas)
-    // Но поскольку мы вращаем все колесо, нам нужно найти какой сектор сейчас под указателем
-    const pointerAngle = -Math.PI / 2; // Указатель смотрит вверх (-90 градусов)
-    
-    // Вычисляем угол сектора под указателем
+    const pointerAngle = -Math.PI / 2;
     let sectorAngleUnderPointer = (pointerAngle - normalizedRotation) % (2 * Math.PI);
-    if (sectorAngleUnderPointer < 0) {
-        sectorAngleUnderPointer += 2 * Math.PI;
-    }
+    if (sectorAngleUnderPointer < 0) sectorAngleUnderPointer += 2 * Math.PI;
     
-    // Определяем индекс выигрышного сектора
     const winningIndex = Math.floor(sectorAngleUnderPointer / anglePerOption) % options.length;
     
     const resultElement = document.getElementById('result');
-    resultElement.textContent = `🎉 Делать будет: ${options[winningIndex]}`;
-    resultElement.style.color = '#ff4757';
+    resultElement.innerHTML = `🎉 <strong>${options[winningIndex]}</strong>`;
     
-    // Анимация результата
-    resultElement.style.opacity = '0';
-    resultElement.style.transform = 'translateY(20px)';
-    
-    setTimeout(() => {
-        resultElement.style.transition = 'all 0.5s ease';
-        resultElement.style.opacity = '1';
-        resultElement.style.transform = 'translateY(0)';
-    }, 100);
-    
-    // Подсвечиваем выигрышный сектор
-    highlightWinningSector(winningIndex);
+    // Для inline-режима можно сразу обновлять результат
+    if (isInlineMode && typeof Telegram !== 'undefined') {
+        updateInlineResult(options[winningIndex]);
+    }
 }
 
-function highlightWinningSector(index) {
-    const centerX = wheelCanvas.width / 2;
-    const centerY = wheelCanvas.height / 2;
-    const radius = centerX - 10;
-    const anglePerOption = (2 * Math.PI) / options.length;
-    
-    wheelCtx.save();
-    wheelCtx.translate(centerX, centerY);
-    wheelCtx.rotate(currentRotation);
-    
-    const startAngle = index * anglePerOption;
-    const endAngle = (index + 1) * anglePerOption;
-    
-    // Рисуем подсветку
-    wheelCtx.beginPath();
-    wheelCtx.moveTo(0, 0);
-    wheelCtx.arc(0, 0, radius, startAngle, endAngle);
-    wheelCtx.closePath();
-    wheelCtx.fillStyle = 'rgba(255, 215, 0, 0.4)';
-    wheelCtx.fill();
-    
-    wheelCtx.restore();
-    
-    setTimeout(() => {
-        drawWheel(currentRotation);
-    }, 2000);
-}
-
-// Дебаг функция для проверки (можно удалить после тестов)
-function debugSector() {
-    const anglePerOption = (2 * Math.PI) / options.length;
-    console.log('Текущее вращение:', currentRotation);
-    console.log('Угол на сектор:', anglePerOption);
-    console.log('Варианты:', options);
+// Функция для обновления inline-результата (если нужно)
+function updateInlineResult(winner) {
+    // Эта функция может обновлять результат в inline-режиме
+    console.log('Winner:', winner);
 }

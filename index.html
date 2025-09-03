@@ -1,48 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Волчок для распределения задачи</title>
+    <title>🎯 Викторина с волчком - Inline Mode</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <div class="container">
-        <div id="inline-mode" style="display: none;">
-            <h3>🎯 Распределятор готов к использованию в чате!</h3>
-            <p>Напишите в любом чате: <code>@TestJust4funBot жертва1; жертва2; жертва3</code></p>
-            <div class="example">
-                <strong>Пример:</strong><br>
-                <code>@TestJust4funBot Чехлов; Деньшиков; Каленов; Рылкин</code>
-            </div>
-        </div>
-
+        <!-- Режим создания викторины -->
         <div id="setup-screen">
-            <h2>Создайте интеллектуальный распределятор</h2>
+            <h2>🎯 Создайте викторину</h2>
             <div id="inputs-container">
-                <input type="text" class="option-input" placeholder="Вариант 1">
-                <input type="text" class="option-input" placeholder="Вариант 2">
+                <input type="text" class="option-input" placeholder="Вариант 1" value="Пицца">
+                <input type="text" class="option-input" placeholder="Вариант 2" value="Суши">
             </div>
             <button onclick="addInput()">+ Добавить вариант</button>
-            <button onclick="generateInlineQuery()">Сгенерировать распределятор для чата</button>
+            <button onclick="generateInlineQuery()">📤 Сгенерировать команду для чата</button>
         </div>
 
-        <div id="game-screen" style="display: none;">
+        <!-- Inline-режим (показывается при открытии через inline query) -->
+        <div id="inline-screen" style="display: none;">
             <div class="wheel-container">
-                <canvas id="wheel" width="250" height="250"></canvas>
+                <canvas id="wheel" width="220" height="220"></canvas>
                 <div class="wheel-center"></div>
                 <div class="pointer"></div>
             </div>
-            <button id="spin-btn" onclick="spinWheel()">Крутить!</button>
+            <button id="spin-btn" onclick="spinWheel()">🎯 Крутить!</button>
             <div id="result"></div>
-            <button onclick="shareToChat()" style="background-color: #25D366;">📤 Отправить в чат</button>
         </div>
 
-        <div id="inline-query-result" style="display: none; margin-top: 20px; padding: 10px; background: #f0f8ff; border-radius: 10px;">
-            <h4>Команда для чата:</h4>
-            <code id="query-text" style="word-break: break-all;"></code>
-            <button onclick="copyToClipboard()" style="margin-top: 10px;">📋 Копировать</button>
+        <!-- Результат для inline-режима -->
+        <div id="inline-result" style="display: none;">
+            <h4>Команда для отправки в чат:</h4>
+            <div class="inline-command">
+                <code id="inline-query">@YourBot Пицца; Суши; Бургеры</code>
+            </div>
+            <button onclick="copyInlineCommand()">📋 Скопировать команду</button>
+            <p class="hint">Вставьте эту команду в любой чат Telegram</p>
         </div>
     </div>
     <script src="script.js"></script>

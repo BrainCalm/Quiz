@@ -14,22 +14,24 @@ body {
 .option-input {
     display: block;
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin: 8px 0;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 8px;
     box-sizing: border-box;
+    font-size: 14px;
 }
 
 button {
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 10px 16px;
-    margin: 8px 4px;
-    border-radius: 6px;
+    padding: 12px 20px;
+    margin: 10px 5px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    transition: background-color 0.3s;
 }
 
 button:hover {
@@ -38,8 +40,8 @@ button:hover {
 
 .wheel-container {
     position: relative;
-    width: 250px;
-    height: 250px;
+    width: 220px;
+    height: 220px;
     margin: 20px auto;
 }
 
@@ -63,34 +65,49 @@ button:hover {
 
 .pointer {
     position: absolute;
-    top: -12px;
+    top: -10px;
     left: 50%;
     transform: translateX(-50%);
     width: 8px;
-    height: 30px;
+    height: 25px;
     background: #ff4757;
     border-radius: 4px 4px 0 0;
     z-index: 11;
 }
 
 #result {
-    margin-top: 15px;
+    margin: 15px 0;
     font-size: 16px;
     font-weight: bold;
     min-height: 25px;
+    color: #ff4757;
 }
 
-.example {
-    background: #e3f2fd;
-    padding: 10px;
+.inline-command {
+    background: white;
+    padding: 12px;
     border-radius: 8px;
     margin: 10px 0;
-    font-size: 14px;
+    border: 1px solid #ddd;
 }
 
-.example code {
-    background: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: monospace;
+.inline-command code {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #333;
+}
+
+.hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Стили для компактного inline-режима */
+#inline-screen {
+    padding: 10px;
+}
+
+#inline-screen .wheel-container {
+    margin: 10px auto;
 }
